@@ -1,0 +1,36 @@
+{
+    "XVIIthk": {
+        "register": "admin",
+        "dialogues": 1
+    },
+    "谢雪姣工作室-助理": {
+        "register": "user",
+        "dialogues": 1,
+        "last_reset": "2024-01-01"
+    },
+    "贾梓": {
+        "register": "admin",
+        "dialogues": 2,
+        "last_reset": "2025-08-24"
+    },
+    "梁": {
+        "register": "user",
+        "dialogues": 1,
+        "last_reset": "2025-08-24"
+    },
+    "戒痕": {
+        "register": "user",
+        "dialogues": 1,
+        "last_reset": "2025-08-25"
+    },
+    "🐷🐷": {
+        "register": "user",
+        "dialogues": 2,
+        "last_reset": "2025-08-25"
+    },
+    "渝过天晴": {
+        "register": "user",
+        "dialogues": 6,
+        "last_reset": "2025-08-25"
+    }
+}
