@@ -1,0 +1,114 @@
+{
+  "save_slots": [
+    {
+      "timestamp": "2025-10-01 02:34:41",
+      "current_node": "c1-7",
+      "display_text": "水下的世界似乎比这里更加[i]温暖[/i]。[br]至少，那里没有这令人[b]窒息[/b]的寂静。",
+      "typing": false,
+      "current_character": "",
+      "display_mode": 0,
+      "text_history": [
+        {
+          "character": null,
+          "text": "感谢您的支持与游玩。开始前须知：[br]本作为佣囚同人作品《窒息》的文字剧情游戏，[br]当前版本为demo试玩版。",
+          "is_option": false
+        },
+        {
+          "character": "作者 / Fifteen",
+          "text": "基本键位：[br]使用[Space]或[Enter]切换下一条对话；[br]使用[Ctrl-S/O]保存/读取进度(每5分钟自动保存1次)；[br]使用[Ctrl-L]查看历史对话记录。",
+          "is_option": false
+        },
+        {
+          "character": null,
+          "text": "[开始沉浸]",
+          "is_option": true
+        },
+        {
+          "character": "",
+          "text": "......",
+          "is_option": false
+        },
+        {
+          "character": "",
+          "text": "水下的压迫感[i]令人窒息[/i]却又如此[i]熟悉[/i]。",
+          "is_option": false
+        },
+        {
+          "character": "",
+          "text": "这窒息感……[br]是死亡的拥抱？[br]亦或是逃避现实的温柔乡？",
+          "is_option": false
+        },
+        {
+          "character": "Rice",
+          "text": "[m]（好冷……）[/m][br][m]（身体……在下沉……）[/m]",
+          "is_option": false
+        },
+        {
+          "character": "Rice",
+          "text": "[m]（这样就好……）[/m][br][m]（再也不用……给别人添麻烦了……）[/m]",
+          "is_option": false
+        },
+        {
+          "character": "Rice",
+          "text": "[m]（哥哥……）[/m][br][m]（终于可以……不用再看到你厌恶的眼神了……）[/m]",
+          "is_option": false
+        },
+        {
+          "character": "",
+          "text": "C  h  a  r  a  c  t  e  r  [br]0  1  [br]失  落",
+          "is_option": false
+        },
+        {
+          "character": "",
+          "text": "意识从冰冷的水中[br]坠入更冷的现实——",
+          "is_option": false
+        },
+        {
+          "character": "",
+          "text": "[y]医院[/y]。",
+          "is_option": false
+        },
+        {
+          "character": "Rice",
+          "text": "[m]（……我还活着？）[/m]",
+          "is_option": false
+        },
+        {
+          "character": "Rice",
+          "text": "[m]（为什么……）[/m][br][m]（连死都……这么失败……）[/m]",
+          "is_option": false
+        },
+        {
+          "character": "Rice",
+          "text": "[i]*艰难坐起*[/i][br][m]（头……好痛……）[/m]",
+          "is_option": false
+        },
+        {
+          "character": "",
+          "text": "消毒水的味道刺鼻。[br]白色的墙壁，冰冷的器械。[br]一切都提醒着他——还活着。",
+          "is_option": false
+        }
+      ],
+      "game_values": {
+        "fvblty": 50,
+        "selfhate": 5,
+        "Jackselfhate": 20
+      }
+    },
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+  ],
+  "game_values": {
+    "fvblty": 50,
+    "selfhate": 5,
+    "Jackselfhate": 20
+  },
+  "format_version": "2.0"
+}

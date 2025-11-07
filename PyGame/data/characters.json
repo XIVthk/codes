@@ -1,17 +1,10 @@
 [
   {
-    "character": "主角",
-    "picture": "protagonist.png",
-    "sound": "protagonist_type.mp3"
-  },
-  {
-    "character": "朋友",
-    "picture": "friend.png",
-    "sound": "friend_type.wav"
-  },
-  {
-    "character": "旁白",
-    "picture": "",
-    "sound": ""
+    "character": "Jack",
+    "picture": "Jack_default.png",
+    "expressions": {
+      "default": "Jack_default.png"
+    },
+    "sound": "voice.wav"
   }
 ]
