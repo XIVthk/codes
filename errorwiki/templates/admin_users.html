@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}用户管理{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">👥 Users Management</h1>
+    <p class="title-sub">馆主控制面板</p>
+</div>
+
+<div class="admin-container">
+    <div class="users-table-wrapper glass-card">
+        <table class="users-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>用户名</th>
+                    <th>邮箱</th>
+                    <th>角色</th>
+                    <th>注册时间</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td><strong>{{ user.username }}</strong></td>
+                    <td>{{ user.email }}</td>
+                    <td>
+                        <span class="role-badge role-{{ user.role }}">
+                            {% if user.role == ROLE_ADMIN %}🏛️ 馆主
+                            {% elif user.role == ROLE_MODERATOR %}⚖️ 审核员
+                            {% else %}📖 读者{% endif %}
+                        </span>
+                    </td>
+                    <td>{{ user.created_at.strftime('%Y-%m-%d') if user.created_at else '-' }}</td>
+                    <td>
+                        {% if user.id != current_user.id %}
+                        <form method="POST" action="{{ url_for('update_user_role', user_id=user.id) }}" class="role-form">
+                            <select name="role" class="role-select">
+                                <option value="user" {% if user.role == 'user' %}selected{% endif %}>读者</option>
+                                <option value="moderator" {% if user.role == 'moderator' %}selected{% endif %}>审核员</option>
+                                <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>馆主</option>
+                            </select>
+                            <button type="submit" class="role-save">保存</button>
+                        </form>
+                        {% else %}
+                        <span class="current-user-badge">当前用户</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+.admin-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.users-table-wrapper {
+    padding: 24px;
+    overflow-x: auto;
+}
+
+.users-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.users-table th {
+    text-align: left;
+    padding: 14px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--border-dim);
+}
+
+.users-table td {
+    padding: 16px 12px;
+    border-bottom: 1px solid rgba(30, 45, 61, 0.5);
+}
+
+.role-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+}
+
+.role-admin {
+    background: rgba(210, 153, 34, 0.15);
+    color: var(--accent-yellow);
+}
+
+.role-moderator {
+    background: rgba(88, 166, 255, 0.15);
+    color: var(--accent-blue);
+}
+
+.role-user {
+    background: rgba(139, 158, 176, 0.1);
+    color: var(--text-secondary);
+}
+
+.role-form {
+    display: flex;
+    gap: 8px;
+}
+
+.role-select {
+    padding: 6px 10px;
+    background: rgba(10, 18, 28, 0.6);
+    border: 1px solid var(--border-dim);
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-size: 13px;
+}
+
+.role-save {
+    padding: 6px 12px;
+    background: var(--accent-blue);
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.current-user-badge {
+    color: var(--text-muted);
+    font-size: 12px;
+}
+</style>
+{% endblock %}

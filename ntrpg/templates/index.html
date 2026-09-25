@@ -1,0 +1,1026 @@
+<!-- templates/index.html - 完整角色卡版本 -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>TRPG AI主持人 - 你的专属DM</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-lite-webfont@1.1.0/style.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "LXGW WenKai Lite", "霞鹜文楷", "LXGW WenKai", "Noto Serif SC", "Microsoft YaHei", sans-serif;
+            background: #0a0a0a;
+            min-height: 100vh;
+            color: #a0d4ff;
+        }
+
+        button, input, textarea, .btn, .dice-btn, .message-text, .command-tag, select {
+            font-family: "LXGW WenKai Lite", "霞鹜文楷", "LXGW WenKai", "Noto Serif SC", "Microsoft YaHei", monospace;
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #1a1a2e; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 10px; }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: rgba(10, 10, 20, 0.95);
+            border-bottom: 1px solid #3b82f6;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon { font-size: 28px; }
+        .logo h1 { font-size: 1.3rem; color: #60a5fa; }
+
+        .controls { display: flex; gap: 10px; flex-wrap: wrap; }
+
+        .btn {
+            background: rgba(20, 20, 40, 0.9);
+            border: 1px solid #3b82f6;
+            padding: 6px 14px;
+            border-radius: 20px;
+            color: #a0d4ff;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .btn:hover { background: #3b82f6; color: white; transform: translateY(-1px); }
+        .btn-primary { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; }
+        .btn-success { background: linear-gradient(135deg, #10b981, #059669); border-color: #10b981; color: white; }
+        .btn-warning { background: linear-gradient(135deg, #f59e0b, #d97706); border-color: #f59e0b; color: white; }
+
+        .quick-dice {
+            background: rgba(10, 10, 20, 0.9);
+            padding: 8px 20px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid #1e3a5f;
+        }
+
+        .dice-btn {
+            background: #1e3a5f;
+            border: 1px solid #3b82f6;
+            padding: 4px 12px;
+            border-radius: 14px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            color: #a0d4ff;
+            transition: all 0.2s;
+        }
+
+        .dice-btn:hover { background: #3b82f6; color: white; transform: scale(1.05); }
+
+        /* 双栏布局 */
+        .main-layout {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            gap: 1px;
+            background: #1a1a2e;
+        }
+
+        /* 角色卡侧边栏 */
+        .character-sidebar {
+            width: 320px;
+            background: rgba(10, 10, 20, 0.8);
+            backdrop-filter: blur(10px);
+            overflow-y: auto;
+            flex-shrink: 0;
+            transition: all 0.3s;
+            border-right: 1px solid #3b82f6;
+        }
+
+        .character-sidebar.collapsed {
+            width: 50px;
+        }
+
+        .sidebar-toggle {
+            position: absolute;
+            right: -12px;
+            top: 50%;
+            background: #3b82f6;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            font-size: 12px;
+        }
+
+        .character-card {
+            padding: 16px;
+            position: relative;
+        }
+
+        .char-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #3b82f6;
+        }
+
+        .char-avatar {
+            font-size: 64px;
+            margin-bottom: 10px;
+        }
+
+        .char-name {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #60a5fa;
+            margin-bottom: 5px;
+        }
+
+        .char-race-class {
+            font-size: 0.8rem;
+            color: #8ba9c9;
+        }
+
+        .char-level {
+            font-size: 0.75rem;
+            color: #6b9fd4;
+            margin-top: 5px;
+        }
+
+        .stat-section {
+            margin-bottom: 20px;
+        }
+
+        .stat-title {
+            font-size: 0.8rem;
+            color: #8ba9c9;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #1e3a5f;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .stat-item {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 8px;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: #8ba9c9;
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #60a5fa;
+        }
+
+        .stat-mod {
+            font-size: 0.7rem;
+            color: #a0d4ff;
+            margin-left: 4px;
+        }
+
+        .attr-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .attr-label {
+            font-size: 0.75rem;
+            color: #8ba9c9;
+        }
+
+        .attr-value {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #60a5fa;
+        }
+
+        .hp-bar, .mp-bar {
+            background: #1a1a2e;
+            border-radius: 10px;
+            height: 8px;
+            margin: 8px 0;
+            overflow: hidden;
+        }
+
+        .hp-fill {
+            background: linear-gradient(90deg, #ef4444, #dc2626);
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.3s;
+        }
+
+        .mp-fill {
+            background: linear-gradient(90deg, #3b82f6, #2563eb);
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+        }
+
+        .edit-btn {
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid #3b82f6;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            color: #a0d4ff;
+        }
+
+        .edit-btn:hover {
+            background: #3b82f6;
+            color: white;
+        }
+
+        /* 聊天区域 */
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: #0a0a0a;
+        }
+
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .message {
+            display: flex;
+            gap: 10px;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .message.user .message-avatar { background: #1e3a5f; border: 1px solid #3b82f6; }
+        .message.dm .message-avatar { background: #2d1b4e; border: 1px solid #8b5cf6; }
+        .message.system .message-avatar { background: #1a1a2e; border: 1px solid #4b5563; }
+
+        .message-content {
+            flex: 1;
+            background: rgba(20, 20, 40, 0.7);
+            border-radius: 16px;
+            padding: 10px 14px;
+            max-width: 75%;
+            line-height: 1.6;
+            border: 1px solid #1e3a5f;
+        }
+
+        .message.user .message-content {
+            background: #0f2a4a;
+            border-color: #3b82f6;
+            margin-left: auto;
+        }
+
+        .message.dm .message-content { background: #1a1035; border-color: #8b5cf6; }
+        .message.system .message-content { background: #111128; border-color: #4b5563; }
+
+        .message-name { font-size: 0.7rem; color: #6b9fd4; margin-bottom: 4px; display: flex; justify-content: space-between; }
+        .message-text { word-wrap: break-word; white-space: pre-wrap; color: #d0e8ff; }
+
+        .dice-result {
+            background: rgba(59, 130, 246, 0.1);
+            border-left: 3px solid #3b82f6;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin: 6px 0;
+            white-space: pre-wrap;
+        }
+
+        .input-area {
+            background: rgba(10, 10, 20, 0.95);
+            border-top: 1px solid #3b82f6;
+            padding: 12px 20px;
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .input-wrapper { flex: 1; }
+        .message-input {
+            width: 100%;
+            background: #111125;
+            border: 1px solid #3b82f6;
+            border-radius: 24px;
+            padding: 10px 16px;
+            color: #d0e8ff;
+            font-size: 0.95rem;
+            resize: none;
+        }
+        .message-input:focus { outline: none; border-color: #60a5fa; background: #0f0f2a; }
+        .message-input::placeholder { color: #4a6a8a; }
+
+        .input-hint { font-size: 0.65rem; color: #4a6a8a; margin-top: 4px; padding-left: 12px; }
+
+        .send-btn {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: white;
+        }
+        .send-btn:hover { transform: scale(1.05); }
+
+        /* 角色编辑弹窗 - 磨砂玻璃 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(12px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal.active { display: flex; }
+        
+        .modal-content {
+            background: rgba(15, 15, 30, 0.95);
+            backdrop-filter: blur(16px);
+            border-radius: 28px;
+            padding: 28px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 85vh;
+            overflow-y: auto;
+            border: 1px solid rgba(59, 130, 246, 0.5);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal-content h3 {
+            margin-bottom: 20px;
+            color: #60a5fa;
+            text-align: center;
+            font-size: 1.3rem;
+        }
+        
+        .form-group {
+            margin-bottom: 18px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            color: #a0d4ff;
+            font-size: 0.8rem;
+        }
+        
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px 14px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #3b82f6;
+            border-radius: 12px;
+            color: #d0e8ff;
+            font-size: 0.9rem;
+        }
+        
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+        
+        .stats-editor {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 16px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+        
+        .stats-editor h4 {
+            color: #8ba9c9;
+            font-size: 0.85rem;
+            margin-bottom: 12px;
+        }
+        
+        .typing-indicator { display: flex; gap: 4px; padding: 10px 14px; background: rgba(20, 20, 40, 0.7); border-radius: 16px; width: fit-content; }
+        .typing-indicator span { width: 8px; height: 8px; background: #3b82f6; border-radius: 50%; animation: bounce 1.4s infinite; }
+        .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+        
+        @media (max-width: 768px) {
+            .character-sidebar { width: 280px; }
+            .message-content { max-width: 85%; }
+            .form-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <span class="logo-icon">🎲</span>
+                <h1>AI 地下城主</h1>
+            </div>
+            <div class="controls">
+                <button class="btn" id="helpBtn">❓ .help</button>
+                <button class="btn" id="editCharBtn" style="display: none;">📝 编辑角色</button>
+                <button class="btn" id="clearBtn">🗑️ 清空</button>
+                <button class="btn btn-primary" id="newGameBtn">✨ 新游戏</button>
+            </div>
+        </div>
+
+        <div class="quick-dice">
+            <button class="dice-btn" data-dice="1d20">d20</button>
+            <button class="dice-btn" data-dice="1d12">d12</button>
+            <button class="dice-btn" data-dice="1d10">d10</button>
+            <button class="dice-btn" data-dice="1d8">d8</button>
+            <button class="dice-btn" data-dice="1d6">d6</button>
+            <button class="dice-btn" data-dice="1d4">d4</button>
+            <button class="dice-btn" data-dice="3d6">3d6</button>
+            <button class="dice-btn" data-dice="1d100">d100</button>
+            <button class="dice-btn" data-command=".rc 侦查/50">侦查50</button>
+            <button class="dice-btn" data-command=".rc 力量/70">力量70</button>
+            <button class="dice-btn" data-command=".help r">.help r</button>
+            <button class="dice-btn" data-command=".help rc">.help rc</button>
+        </div>
+
+        <div class="main-layout">
+            <!-- 角色卡侧边栏 -->
+            <div class="character-sidebar" id="characterSidebar">
+                <div class="character-card" id="characterCard">
+                    <div class="char-header">
+                        <div class="char-avatar" id="charAvatar">🎭</div>
+                        <div class="char-name" id="charName">未创建</div>
+                        <div class="char-race-class" id="charRaceClass">-</div>
+                        <div class="char-level" id="charLevel">等级 -</div>
+                    </div>
+                    
+                    <div class="stat-section">
+                        <div class="stat-title">❤️ 生命值</div>
+                        <div class="attr-row">
+                            <span class="attr-label">当前/最大</span>
+                            <span class="attr-value" id="charHp">0 / 0</span>
+                        </div>
+                        <div class="hp-bar"><div class="hp-fill" id="hpFill" style="width: 0%"></div></div>
+                    </div>
+                    
+                    <div class="stat-section" id="statsSection">
+                        <div class="stat-title">⚔️ 属性</div>
+                        <div class="stat-grid" id="statsGrid"></div>
+                    </div>
+                    
+                    <div class="stat-section">
+                        <div class="stat-title">📋 基本信息</div>
+                        <div class="attr-row"><span class="attr-label">种族</span><span class="attr-value" id="charRace">-</span></div>
+                        <div class="attr-row"><span class="attr-label">职业</span><span class="attr-value" id="charClass">-</span></div>
+                        <div class="attr-row"><span class="attr-label">背景</span><span class="attr-value" id="charBackground">-</span></div>
+                    </div>
+                    
+                    <div class="stat-section">
+                        <div class="stat-title">✨ 特质与专长</div>
+                        <div id="charTraits" style="font-size: 0.75rem; color: #a0d4ff;">-</div>
+                    </div>
+                    
+                    <div class="stat-section">
+                        <div class="stat-title">🎒 装备与法术</div>
+                        <div id="charInventory" style="font-size: 0.75rem; color: #a0d4ff;">-</div>
+                    </div>
+                    
+                    <div class="stat-section">
+                        <div class="stat-title">📖 背景故事</div>
+                        <div id="charBackstory" style="font-size: 0.75rem; color: #a0d4ff; line-height: 1.5;">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 聊天区域 -->
+            <div class="chat-area">
+                <div class="messages" id="messages">
+                    <div class="welcome-card" style="text-align: center; padding: 25px; background: rgba(20,20,40,0.5); border-radius: 20px;">
+                        <h2>🎲 欢迎来到冒险世界</h2>
+                        <p>点击「新游戏」创建你的角色</p>
+                        <div style="display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 12px;">
+                            <span style="background: rgba(59,130,246,0.15); padding: 3px 8px; border-radius: 10px;">.help</span>
+                            <span style="background: rgba(59,130,246,0.15); padding: 3px 8px; border-radius: 10px;">.r 1d20+5</span>
+                            <span style="background: rgba(59,130,246,0.15); padding: 3px 8px; border-radius: 10px;">.rc 力量/80</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="input-area">
+                    <div class="input-wrapper">
+                        <textarea class="message-input" id="messageInput" rows="1" placeholder="输入命令或对话... 如 .r 1d10+10 .help" maxlength="500"></textarea>
+                        <div class="input-hint">Enter发送 | 所有以 . 开头的命令都会自动解析</div>
+                    </div>
+                    <button class="send-btn" id="sendBtn">📤</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 角色创建/编辑弹窗 -->
+    <div class="modal" id="characterModal">
+        <div class="modal-content">
+            <h3 id="modalTitle">🎭 创建角色</h3>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>📛 角色名</label>
+                    <input type="text" id="charNameInput" placeholder="例如：艾拉斯卓·银月">
+                </div>
+                <div class="form-group">
+                    <label>🎲 游戏规则</label>
+                    <select id="gameRule">
+                        <option value="DnD">龙与地下城 (D&D 5e)</option>
+                        <option value="CoC">克苏鲁呼唤 (CoC 7e)</option>
+                        <option value="Other">其他规则</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>🧝 种族</label>
+                    <input type="text" id="charRaceInput" placeholder="人类、精灵、矮人...">
+                </div>
+                <div class="form-group">
+                    <label>⚔️ 职业</label>
+                    <input type="text" id="charClassInput" placeholder="战士、法师、游荡者...">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>⭐ 等级</label>
+                    <input type="number" id="charLevelInput" value="1" min="1" max="20">
+                </div>
+                <div class="form-group">
+                    <label>❤️ 生命值</label>
+                    <input type="text" id="charHpInput" placeholder="当前/最大，如 12/12">
+                </div>
+            </div>
+            
+            <div class="stats-editor" id="statsEditor">
+                <h4 id="statsEditorTitle">📊 属性值</h4>
+                <div id="statsInputs"></div>
+            </div>
+            
+            <div class="form-group">
+                <label>📖 背景故事</label>
+                <textarea id="charBackstoryInput" rows="2" placeholder="角色的背景故事、出身、重要经历..."></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>✨ 特质/专长</label>
+                <input type="text" id="charTraitsInput" placeholder="例如：警觉、施法天赋、幸运">
+            </div>
+            
+            <div class="form-group">
+                <label>🎒 装备/法术</label>
+                <input type="text" id="charInventoryInput" placeholder="例如：长剑、皮甲、治疗药水x2">
+            </div>
+            
+            <div class="form-group">
+                <label>📝 角色描述</label>
+                <textarea id="charDescInput" rows="2" placeholder="外貌特征、性格特点..."></textarea>
+            </div>
+            
+            <div class="modal-buttons" style="display: flex; gap: 12px; margin-top: 20px;">
+                <button class="btn" id="cancelCharBtn">取消</button>
+                <button class="btn btn-primary" id="confirmCharBtn">确认创建</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 会话管理
+        let sessionId = localStorage.getItem('trpg_session_id') || 'session_' + Date.now();
+        localStorage.setItem('trpg_session_id', sessionId);
+        let isLoading = false;
+        let currentCharacter = null;
+        
+        // 属性映射
+        const dndStats = [
+            { key: 'str', name: '力量', abbr: 'STR' },
+            { key: 'dex', name: '敏捷', abbr: 'DEX' },
+            { key: 'con', name: '体质', abbr: 'CON' },
+            { key: 'int', name: '智力', abbr: 'INT' },
+            { key: 'wis', name: '感知', abbr: 'WIS' },
+            { key: 'cha', name: '魅力', abbr: 'CHA' }
+        ];
+        
+        const cocStats = [
+            { key: 'str', name: '力量', abbr: 'STR' },
+            { key: 'con', name: '体质', abbr: 'CON' },
+            { key: 'siz', name: '体型', abbr: 'SIZ' },
+            { key: 'dex', name: '敏捷', abbr: 'DEX' },
+            { key: 'app', name: '外貌', abbr: 'APP' },
+            { key: 'int', name: '智力', abbr: 'INT' },
+            { key: 'pow', name: '意志', abbr: 'POW' },
+            { key: 'edu', name: '教育', abbr: 'EDU' },
+            { key: 'luc', name: '幸运', abbr: 'LUC' }
+        ];
+        
+        let currentStatsList = dndStats;
+        
+        // DOM 元素
+        const messagesDiv = document.getElementById('messages');
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const newGameBtn = document.getElementById('newGameBtn');
+        const helpBtn = document.getElementById('helpBtn');
+        const editCharBtn = document.getElementById('editCharBtn');
+        const characterModal = document.getElementById('characterModal');
+        const cancelCharBtn = document.getElementById('cancelCharBtn');
+        const confirmCharBtn = document.getElementById('confirmCharBtn');
+        const gameRuleSelect = document.getElementById('gameRule');
+        const statsInputsDiv = document.getElementById('statsInputs');
+        const modalTitle = document.getElementById('modalTitle');
+        
+        // 辅助函数
+        function calcMod(score) {
+            return Math.floor((score - 10) / 2);
+        }
+        
+        function formatMod(mod) {
+            return mod >= 0 ? `+${mod}` : `${mod}`;
+        }
+        
+        // 更新属性编辑器
+        function updateStatsEditor() {
+            const rule = gameRuleSelect.value;
+            currentStatsList = rule === 'DnD' ? dndStats : cocStats;
+            document.getElementById('statsEditorTitle').innerHTML = rule === 'DnD' ? '📊 属性值 (标准27点点数分配)' : '📊 属性值 (标准460点点数分配)';
+            
+            statsInputsDiv.innerHTML = '';
+            currentStatsList.forEach(stat => {
+                const div = document.createElement('div');
+                div.style.marginBottom = '8px';
+                div.innerHTML = `
+                    <label style="display: inline-block; width: 60px; font-size: 0.8rem;">${stat.name}</label>
+                    <input type="number" id="stat_${stat.key}" value="${rule === 'DnD' ? 10 : 50}" min="${rule === 'DnD' ? 3 : 15}" max="${rule === 'DnD' ? 20 : 99}" style="width: 80px;">
+                    <span style="font-size: 0.7rem; margin-left: 8px; color: #6b9fd4;">修正: ${formatMod(calcMod(rule === 'DnD' ? 10 : Math.floor(50/5)))}</span>
+                `;
+                statsInputsDiv.appendChild(div);
+            });
+        }
+        
+        // 渲染角色卡
+        function renderCharacterCard() {
+            if (!currentCharacter) return;
+            
+            document.getElementById('charName').textContent = currentCharacter.name || '未命名';
+            document.getElementById('charRaceClass').textContent = `${currentCharacter.race || '-'} · ${currentCharacter.class || '-'}`;
+            document.getElementById('charLevel').textContent = `等级 ${currentCharacter.level || 1}`;
+            
+            const hpParts = (currentCharacter.hp || '0/0').split('/');
+            const currentHp = parseInt(hpParts[0]) || 0;
+            const maxHp = parseInt(hpParts[1]) || 1;
+            document.getElementById('charHp').textContent = `${currentHp} / ${maxHp}`;
+            document.getElementById('hpFill').style.width = `${(currentHp / maxHp) * 100}%`;
+            
+            document.getElementById('charRace').textContent = currentCharacter.race || '-';
+            document.getElementById('charClass').textContent = currentCharacter.class || '-';
+            document.getElementById('charBackground').textContent = currentCharacter.background || '-';
+            document.getElementById('charTraits').textContent = currentCharacter.traits || '-';
+            document.getElementById('charInventory').textContent = currentCharacter.inventory || '-';
+            document.getElementById('charBackstory').textContent = currentCharacter.backstory || '-';
+            
+            // 渲染属性
+            const statsGrid = document.getElementById('statsGrid');
+            statsGrid.innerHTML = '';
+            const statsList = currentCharacter.rule === 'DnD' ? dndStats : cocStats;
+            
+            statsList.forEach(stat => {
+                const value = currentCharacter.stats?.[stat.key] || (currentCharacter.rule === 'DnD' ? 10 : 50);
+                const mod = currentCharacter.rule === 'DnD' ? calcMod(value) : Math.floor((value - 50) / 5);
+                const div = document.createElement('div');
+                div.className = 'stat-item';
+                div.innerHTML = `
+                    <div class="stat-label">${stat.abbr}</div>
+                    <div class="stat-value">${value}<span class="stat-mod">${formatMod(mod)}</span></div>
+                `;
+                statsGrid.appendChild(div);
+            });
+        }
+        
+        // 从表单收集角色数据
+        function collectCharacterData() {
+            const rule = gameRuleSelect.value;
+            const stats = {};
+            const statsList = rule === 'DnD' ? dndStats : cocStats;
+            statsList.forEach(stat => {
+                const input = document.getElementById(`stat_${stat.key}`);
+                if (input) stats[stat.key] = parseInt(input.value) || (rule === 'DnD' ? 10 : 50);
+            });
+            
+            return {
+                name: document.getElementById('charNameInput').value,
+                rule: rule,
+                race: document.getElementById('charRaceInput').value,
+                class: document.getElementById('charClassInput').value,
+                level: parseInt(document.getElementById('charLevelInput').value) || 1,
+                hp: document.getElementById('charHpInput').value || '0/0',
+                stats: stats,
+                backstory: document.getElementById('charBackstoryInput').value,
+                traits: document.getElementById('charTraitsInput').value,
+                inventory: document.getElementById('charInventoryInput').value,
+                description: document.getElementById('charDescInput').value
+            };
+        }
+        
+        // 创建/更新角色
+        function saveCharacter(isNew = true) {
+            const charData = collectCharacterData();
+            if (!charData.name) {
+                alert('请输入角色名');
+                return false;
+            }
+            currentCharacter = charData;
+            localStorage.setItem('trpg_character', JSON.stringify(currentCharacter));
+            renderCharacterCard();
+            editCharBtn.style.display = 'inline-block';
+            return true;
+        }
+        
+        // 开始游戏
+        function startGame() {
+            if (!currentCharacter) {
+                openCharacterModal();
+                return;
+            }
+            
+            const ruleDesc = currentCharacter.rule === 'DnD' ? 'D&D 5e' : (currentCharacter.rule === 'CoC' ? 'CoC 7e' : '自定义');
+            let intro = `我是 ${currentCharacter.name}，${currentCharacter.race || ''} ${currentCharacter.class || ''}，等级 ${currentCharacter.level || 1}。\n`;
+            intro += `规则：${ruleDesc}\n`;
+            if (currentCharacter.description) intro += `描述：${currentCharacter.description}\n`;
+            intro += `\n请根据${ruleDesc}规则，引导我开始冒险！`;
+            
+            sendMessage(intro);
+        }
+        
+        // 打开角色编辑弹窗
+        function openCharacterModal(isEdit = false) {
+            modalTitle.textContent = isEdit ? '📝 编辑角色' : '🎭 创建角色';
+            
+            if (currentCharacter && isEdit) {
+                document.getElementById('charNameInput').value = currentCharacter.name || '';
+                gameRuleSelect.value = currentCharacter.rule || 'DnD';
+                document.getElementById('charRaceInput').value = currentCharacter.race || '';
+                document.getElementById('charClassInput').value = currentCharacter.class || '';
+                document.getElementById('charLevelInput').value = currentCharacter.level || 1;
+                document.getElementById('charHpInput').value = currentCharacter.hp || '0/0';
+                document.getElementById('charBackstoryInput').value = currentCharacter.backstory || '';
+                document.getElementById('charTraitsInput').value = currentCharacter.traits || '';
+                document.getElementById('charInventoryInput').value = currentCharacter.inventory || '';
+                document.getElementById('charDescInput').value = currentCharacter.description || '';
+                
+                updateStatsEditor();
+                const statsList = currentCharacter.rule === 'DnD' ? dndStats : cocStats;
+                statsList.forEach(stat => {
+                    const input = document.getElementById(`stat_${stat.key}`);
+                    if (input && currentCharacter.stats) {
+                        input.value = currentCharacter.stats[stat.key] || (currentCharacter.rule === 'DnD' ? 10 : 50);
+                    }
+                });
+            } else {
+                document.getElementById('charNameInput').value = '';
+                document.getElementById('charRaceInput').value = '';
+                document.getElementById('charClassInput').value = '';
+                document.getElementById('charLevelInput').value = '1';
+                document.getElementById('charHpInput').value = '12/12';
+                document.getElementById('charBackstoryInput').value = '';
+                document.getElementById('charTraitsInput').value = '';
+                document.getElementById('charInventoryInput').value = '';
+                document.getElementById('charDescInput').value = '';
+                updateStatsEditor();
+            }
+            
+            characterModal.classList.add('active');
+        }
+        
+        // 其他函数
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function addMessage(content, type = 'dm') {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            const avatar = type === 'user' ? '👤' : (type === 'dm' ? '🎭' : '📢');
+            const name = type === 'user' ? (currentCharacter?.name || '冒险者') : (type === 'dm' ? 'AI DM' : '系统');
+            messageDiv.innerHTML = `
+                <div class="message-avatar">${avatar}</div>
+                <div class="message-content">
+                    <div class="message-name"><span>${name}</span><span>${new Date().toLocaleTimeString()}</span></div>
+                    <div class="message-text">${escapeHtml(content)}</div>
+                </div>
+            `;
+            messagesDiv.appendChild(messageDiv);
+            messageDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        
+        function addDiceResult(content) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message system';
+            messageDiv.innerHTML = `
+                <div class="message-avatar">🎲</div>
+                <div class="message-content">
+                    <div class="message-name"><span>骰子结果</span><span>${new Date().toLocaleTimeString()}</span></div>
+                    <div class="message-text dice-result">${escapeHtml(content)}</div>
+                </div>
+            `;
+            messagesDiv.appendChild(messageDiv);
+            messageDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        
+        function showTyping() {
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message dm';
+            typingDiv.id = 'typingIndicator';
+            typingDiv.innerHTML = `<div class="message-avatar">🎭</div><div class="message-content"><div class="typing-indicator"><span></span><span></span><span></span></div></div>`;
+            messagesDiv.appendChild(typingDiv);
+            typingDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        
+        function hideTyping() {
+            const typing = document.getElementById('typingIndicator');
+            if (typing) typing.remove();
+        }
+        
+        async function sendMessage(message) {
+            if (!message.trim() || isLoading) return;
+            isLoading = true;
+            addMessage(message, 'user');
+            messageInput.value = '';
+            messageInput.style.height = 'auto';
+            showTyping();
+            
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        session_id: sessionId, 
+                        message: message, 
+                        username: currentCharacter?.name || '冒险者'
+                    })
+                });
+                const data = await response.json();
+                hideTyping();
+                if (data.response) {
+                    addDiceResult(data.response);
+                }
+            } catch (error) {
+                hideTyping();
+                addMessage(`连接错误: ${error.message}`, 'system');
+                console.error(error);
+            } finally {
+                isLoading = false;
+            }
+        }
+        
+        async function quickCommand(cmd) {
+            await sendMessage(cmd);
+        }
+        
+        async function clearHistory() {
+            try {
+                await fetch('/api/clear', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ session_id: sessionId }) });
+                messagesDiv.innerHTML = '';
+                addMessage('✨ 对话历史已清空 ✨', 'system');
+                if (currentCharacter) {
+                    addMessage(`角色 ${currentCharacter.name} 已就绪，继续冒险吧！`, 'system');
+                }
+            } catch (error) {
+                addMessage(`清空失败: ${error.message}`, 'system');
+            }
+        }
+        
+        function newGame() {
+            if (confirm('开始新游戏将会清空当前对话，确定吗？')) {
+                location.reload();
+            }
+        }
+        
+        // 事件绑定
+        sendBtn.addEventListener('click', () => quickCommand(messageInput.value));
+        clearBtn.addEventListener('click', clearHistory);
+        newGameBtn.addEventListener('click', newGame);
+        helpBtn.addEventListener('click', () => quickCommand('.help'));
+        editCharBtn.addEventListener('click', () => openCharacterModal(true));
+        
+        cancelCharBtn.addEventListener('click', () => characterModal.classList.remove('active'));
+        confirmCharBtn.addEventListener('click', () => {
+            if (saveCharacter(true)) {
+                characterModal.classList.remove('active');
+                startGame();
+            }
+        });
+        
+        gameRuleSelect.addEventListener('change', updateStatsEditor);
+        characterModal.addEventListener('click', (e) => {
+            if (e.target === characterModal) characterModal.classList.remove('active');
+        });
+        
+        messageInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                quickCommand(messageInput.value);
+            }
+        });
+        
+        messageInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+        
+        document.querySelectorAll('.dice-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (btn.dataset.dice) quickCommand(`.r ${btn.dataset.dice}`);
+                else if (btn.dataset.command) quickCommand(btn.dataset.command);
+            });
+        });
+        
+        // 加载保存的角色
+        const savedChar = localStorage.getItem('trpg_character');
+        if (savedChar) {
+            currentCharacter = JSON.parse(savedChar);
+            renderCharacterCard();
+            editCharBtn.style.display = 'inline-block';
+            addMessage(`欢迎回来，${currentCharacter.name}！点击「新游戏」可创建新角色。`, 'dm');
+        }
+        
+        updateStatsEditor();
+        console.log('TRPG AI DM 已启动');
+    </script>
+</body>
+</html>

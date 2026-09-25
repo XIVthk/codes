@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Error Wiki{% endblock %} · 错误档案馆</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E💥%3C/text%3E%3C/svg%3E">
+    {% block extra_head %}{% endblock %}
+</head>
+
+<div id="external-link-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-card glass-card">
+        <div class="modal-icon">🔗</div>
+        <h3 class="modal-title">即将离开 Error Wiki</h3>
+        <p class="modal-message">外部链接不受我们控制，确定要继续吗？</p>
+        <div class="modal-url" id="modal-url"></div>
+        <div class="modal-actions">
+            <button class="modal-btn cancel-btn" id="modal-cancel">取消</button>
+            <button class="modal-btn confirm-btn" id="modal-confirm">继续访问</button>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    const modal = document.getElementById('external-link-modal');
+    const modalUrl = document.getElementById('modal-url');
+    const modalCancel = document.getElementById('modal-cancel');
+    const modalConfirm = document.getElementById('modal-confirm');
+    const currentHost = window.location.host;
+    
+    let pendingUrl = '';
+    
+    // 显示弹窗
+    function showModal(url) {
+        pendingUrl = url;
+        modalUrl.textContent = url.length > 60 ? url.substring(0, 60) + '...' : url;
+        modal.style.display = 'flex';
+    }
+    
+    // 隐藏弹窗
+    function hideModal() {
+        modal.style.display = 'none';
+        pendingUrl = '';
+    }
+    
+    // 绑定外部链接点击事件（使用事件委托，确保动态加载的内容也能触发）
+    document.addEventListener('click', function(e) {
+        // 找到被点击的链接（可能点击的是链接内部的元素）
+        let target = e.target;
+        while (target && target.tagName !== 'A') {
+            target = target.parentElement;
+            if (!target) return;
+        }
+        
+        const href = target.getAttribute('href');
+        if (!href) return;
+        
+        // 检查是否是外部链接
+        if (href.startsWith('http') && !href.includes(currentHost) && !href.startsWith('javascript:')) {
+            e.preventDefault();
+            showModal(href);
+        }
+    });
+
+    // 让正文中的错误链接在新标签页打开
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('a[href*="/error/"]').forEach(link => {
+            // 排除侧边栏和导航区域
+            if (!link.closest('.sidebar') && 
+                !link.closest('.error-breadcrumb') && 
+                !link.closest('.error-footer-nav')) {
+                link.setAttribute('target', '_blank');
+            }
+        });
+    });
+    
+    // 确认跳转
+    modalConfirm.addEventListener('click', function() {
+        if (pendingUrl) {
+            window.open(pendingUrl, '_blank');
+        }
+        hideModal();
+    });
+    
+    // 取消
+    modalCancel.addEventListener('click', hideModal);
+    
+    // 点击遮罩关闭
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            hideModal();
+        }
+    });
+    
+    // ESC 关闭
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal.style.display === 'flex') {
+            hideModal();
+        }
+    });
+    
+    console.log('✅ 外部链接提示已启用');
+
+})();
+</script>
+
+<!-- 删除确认弹窗 -->
+<div id="delete-confirm-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-card glass-card">
+        <div class="modal-icon">⚠️</div>
+        <h3 class="modal-title">确认删除</h3>
+        <p class="modal-message">确定要删除「<span id="delete-error-code"></span>」吗？</p>
+        <p class="modal-warning">此操作不可恢复。</p>
+        <div class="modal-actions">
+            <button class="modal-btn cancel-btn" id="delete-cancel">取消</button>
+            <form id="delete-form" method="POST" style="display: contents;">
+                <button type="submit" class="modal-btn confirm-btn delete-confirm-btn">🗑️ 删除</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    const deleteModal = document.getElementById('delete-confirm-modal');
+    const deleteErrorCode = document.getElementById('delete-error-code');
+    const deleteForm = document.getElementById('delete-form');
+    const deleteCancel = document.getElementById('delete-cancel');
+    
+    // 监听删除按钮点击
+    document.addEventListener('click', function(e) {
+        const deleteBtn = e.target.closest('.delete-btn');
+        if (!deleteBtn) return;
+        
+        const url = deleteBtn.dataset.deleteUrl;
+        const errorCode = deleteBtn.dataset.errorCode;
+        
+        if (url && errorCode) {
+            e.preventDefault();
+            deleteErrorCode.textContent = errorCode;
+            deleteForm.action = url;
+            deleteModal.style.display = 'flex';
+        }
+    });
+    
+    // 取消
+    if (deleteCancel) {
+        deleteCancel.addEventListener('click', function() {
+            deleteModal.style.display = 'none';
+        });
+    }
+    
+    // 点击遮罩关闭
+    if (deleteModal) {
+        deleteModal.addEventListener('click', function(e) {
+            if (e.target === deleteModal) {
+                deleteModal.style.display = 'none';
+            }
+        });
+    }
+    
+    // ESC 关闭
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && deleteModal && deleteModal.style.display === 'flex') {
+            deleteModal.style.display = 'none';
+        }
+    });
+})();
+</script>
+
+<body>
+    <div class="app-wrapper">
+        <!-- 侧边栏导航 -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <a href="/" class="logo">
+                    <span class="logo-icon">💥</span>
+                    <span class="logo-text">Error<br>Wiki</span>
+                </a>
+            </div>
+            
+            <div class="sidebar-nav">
+                <a href="/" class="nav-item {% if request.path == '/' %}active{% endif %}">
+                    <span class="nav-icon">🏠</span>
+                    <span class="nav-text">首页</span>
+                </a>
+                <a href="/search" class="nav-item {% if request.path == '/search' %}active{% endif %}">
+                    <span class="nav-icon">🔍</span>
+                    <span class="nav-text">搜索</span>
+                </a>
+                <a href="#" class="nav-item" id="random-btn">
+                    <span class="nav-icon">🎲</span>
+                    <span class="nav-text">随机赛博错误</span>
+                </a>
+                {% if current_user.is_authenticated %}
+                <a href="/submit" class="nav-item">
+                    <span class="nav-icon">📝</span>
+                    <span class="nav-text">提交错误</span>
+                </a>
+                <a href="/my-submissions" class="nav-item">
+                    <span class="nav-icon">📋</span>
+                    <span class="nav-text">我的提交</span>
+                </a>
+                <a href="/drafts" class="nav-item {% if request.path == '/drafts' %}active{% endif %}">
+                    <span class="nav-icon">📝</span>
+                    <span class="nav-text">草稿箱</span>
+                    {% set draft_count = current_user.submitted_errors|selectattr('status', 'equalto', STATUS_PRIVATE_DRAFT)|list|length %}
+                    {% if draft_count > 0 %}
+                    <span class="pending-badge">{{ draft_count }}</span>
+                    {% endif %}
+                </a>
+                {% if current_user.is_authenticated and current_user.is_moderator() %}
+                <a href="/review" class="nav-item">
+                    <span class="nav-icon">⚖️</span>
+                    <span class="nav-text">审核中心</span>
+                    <span class="pending-badge" id="pending-count">-</span>
+                </a>
+                {% endif %}
+                {% if current_user.is_authenticated and current_user.role == ROLE_ADMIN %}
+                <a href="/admin/users" class="nav-item">
+                    <span class="nav-icon">👥</span>
+                    <span class="nav-text">用户管理</span>
+                </a>
+                {% endif %}
+                {% endif %}
+            </div>
+            
+            <div class="sidebar-footer">
+                {% if current_user.is_authenticated %}
+                <div class="user-info-mini">
+                    <span class="user-avatar">{{ current_user.username[0].upper() }}</span>
+                    <div class="user-details">
+                        <span class="user-name">{{ current_user.username }}</span>
+                        <span class="user-role">
+                            {% if current_user.role == ROLE_ADMIN %}🏛️ 馆主
+                            {% elif current_user.role == ROLE_MODERATOR %}⚖️ 审核员
+                            {% else %}📖 读者{% endif %}
+                        </span>
+                    </div>
+                </div>
+                <a href="/logout" class="logout-link">退出</a>
+                {% else %}
+                <div class="auth-buttons">
+                    <a href="/login" class="auth-btn login-btn">登录</a>
+                    <a href="/register" class="auth-btn register-btn">注册</a>
+                </div>
+                {% endif %}
+            </div>
+        </nav>
+        
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <!-- Flash 消息 -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-container">
+                        {% for category, message in messages %}
+                            <div class="flash flash-{{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+            
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

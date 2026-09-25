@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>DeepSeek</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%233b9bc5'/%3E%3Cstop offset='100%25' style='stop-color:%235ab0d8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='20' fill='url(%23grad)'/%3E%3Ctext x='50' y='72' font-size='60' text-anchor='middle' fill='white' font-family='Arial, sans-serif' font-weight='bold'%3ED%3C/text%3E%3C/svg%3E">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mammoth@1.4.2/mammoth.browser.min.js"></script>
+    <script>
+        // 配置 marked 保留换行符
+        if (typeof marked !== 'undefined') {
+            marked.setOptions({
+                breaks: true,   // 将 \n 转换为 <br>
+                gfm: true       // 启用 GitHub Flavored Markdown
+            });
+        }
+    </script>
+</head>
+
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>DeepSeek V4</h2>
+                <button class="close-sidebar" id="closeSidebar">✕</button>
+            </div>
+            <div class="session-section">
+                <button class="new-chat-btn" id="newChatBtn">+ 新建对话</button>
+                <div class="session-list" id="sessionList"></div>
+            </div>
+            <div class="config-section">
+                <div class="config-group config-group-system">
+                    <div class="config-header" data-target="systemPanel">
+                        <span class="config-icon">⚙️</span>
+                        <span>System Prompt</span>
+                        <span class="config-arrow">v</span>
+                    </div>
+                    <div class="config-panel" id="systemPanel">
+                        <textarea id="systemPrompt" rows="4" style="display:none;"></textarea>
+                    </div>
+                </div>
+                
+                <div class="config-group config-group-params">
+                    <div class="config-header" data-target="paramsPanel">
+                        <span class="config-icon">🎛️</span>
+                        <span>参数设置</span>
+                        <span class="config-arrow">v</span>
+                    </div>
+                    <div class="config-panel" id="paramsPanel">
+                        <label>🧠 思考深度:</label>
+                        <div class="custom-select-wrapper" id="reasoningWrapper">
+                            <div class="custom-select-trigger">
+                                <span class="custom-select-text" id="reasoningSelectedText">中</span>
+                                <span class="custom-select-arrow">v</span>
+                            </div>
+                            <div class="custom-select-dropdown" id="reasoningDropdown">
+                                <div class="custom-select-option" data-value="low">轻</div>
+                                <div class="custom-select-option" data-value="medium" data-selected="true">中</div>
+                                <div class="custom-select-option" data-value="high">深</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="config-group config-group-chat">
+                    <div class="config-header" data-target="chatPanel">
+                        <span class="config-icon">📁</span>
+                        <span>聊天记录</span>
+                        <span class="config-arrow">v</span>
+                    </div>
+                    <div class="config-panel" id="chatPanel">
+                        <button id="exportChatBtn">导出当前对话</button>
+                        <button id="importChatBtn">导入对话</button>
+                        <input type="file" id="importFile" accept=".json" style="display:none">
+                    </div>
+                </div>
+            </div>
+        </aside>
+        
+        <main class="chat-main">
+            <div class="chat-header">
+                <button class="menu-btn" id="menuBtn">☰</button>
+                <h1 id="chatTitle">新对话</h1>
+                <div class="chat-token-display" id="chatTokenDisplay">📊 Token: 0</div>
+                <div class="header-actions">
+                    <div class="custom-select-wrapper" id="messageJumpWrapper">
+                        <div class="custom-select-trigger">
+                            <span class="custom-select-text">📜 跳转到消息...</span>
+                            <span class="custom-select-arrow">v</span>
+                        </div>
+                        <div class="custom-select-dropdown" id="messageJumpDropdown">
+                            <div class="custom-select-option" data-value="">📜 跳转到消息...</div>
+                        </div>
+                    </div>
+                    
+                    <div class="chat-search-wrapper">
+                        <button id="chatSearchBtn" class="chat-search-btn" title="搜索当前对话">🔍</button>
+                        <div id="chatSearchPanel" class="chat-search-panel" style="display: none;">
+                            <input type="text" id="chatSearchInput" placeholder="搜索关键词..." autocomplete="off">
+                            <span id="chatSearchCount" class="search-count"></span>
+                            <button id="chatSearchPrev" class="search-nav" title="上一个">↑</button>
+                            <button id="chatSearchNext" class="search-nav" title="下一个">↓</button>
+                            <button id="chatSearchClose" class="search-close">✕</button>
+                        </div>
+                    </div>
+                    
+                    <button id="clearChatBtn" title="清空当前对话">🗑️</button>
+                </div>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <div class="welcome-message">
+                    <h2>DeepSeek AI</h2>
+                    <p>支持联网搜索和阅读链接 | 右键菜单可编辑消息</p>
+                </div>
+            </div>
+            <div class="chat-input-container">
+                <div class="tool-buttons">
+                    <button class="tool-btn" data-tool="search_web">🔍 联网搜索</button>
+                    <button class="tool-btn" data-tool="read_link">🔗 阅读链接</button>
+                    <button class="tool-btn" id="mobileUploadBtn">📎 上传文件</button>
+                    <input type="file" id="mobileFileInput" multiple style="display: none;">
+                    <button class="tool-btn" id="visionUploadBtn">📷 识图</button>
+                    <input type="file" id="visionFileInput" accept="image/*" style="display: none;">
+                    <button class="tool-btn" id="stopGenerateBtn" style="display:none">⏹️ 停止生成</button>
+                </div>
+                <div class="pending-files-area" id="pendingFilesArea" style="display: none;">
+                    <div class="pending-files-header">
+                        <span>📎 待发送文件 (<span id="pendingFilesCount">0</span>)</span>
+                        <button id="clearPendingFilesBtn" class="clear-files-btn">✕ 清空</button>
+                    </div>
+                    <div class="pending-files-list" id="pendingFilesList"></div>
+                </div>
+                <div class="input-wrapper">
+                    <textarea id="messageInput" placeholder="输入消息... (Shift+Enter换行，Enter发送)" rows="1"></textarea>
+                    <button id="sendBtn" class="send-btn">发送</button>
+                </div>
+                <div class="input-hint">DeepSeek AI</div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- 右键菜单 -->
+    <div class="context-menu" id="contextMenu" style="display:none">
+        <div class="menu-item" data-action="edit_user">✏️ 编辑用户消息</div>
+        <div class="menu-item" data-action="edit_ai">✏️ 编辑AI回复</div>
+        <div class="menu-item" data-action="regenerate">🔄 重说</div>
+        <div class="menu-item" data-action="delete">🗑️ 删除</div>
+        <div class="menu-item" data-action="copy">📋 复制内容</div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

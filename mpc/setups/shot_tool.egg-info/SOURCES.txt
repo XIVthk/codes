@@ -1,0 +1,12 @@
+README.md
+setup.py
+shot.py
+mpc/__init__.py
+mpc/cli.py
+mpc/core.py
+shot_tool.egg-info/PKG-INFO
+shot_tool.egg-info/SOURCES.txt
+shot_tool.egg-info/dependency_links.txt
+shot_tool.egg-info/entry_points.txt
+shot_tool.egg-info/requires.txt
+shot_tool.egg-info/top_level.txt

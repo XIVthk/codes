@@ -1,0 +1,22 @@
+Metadata-Version: 2.4
+Name: shot-tool
+Version: 0.1.0
+Summary: shot - 单人开发者的时间机器工具
+Author: Your Name
+Author-email: your@email.com
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Requires-Python: >=3.10
+Requires-Dist: cryptography
+Requires-Dist: zstandard
+Requires-Dist: tqdm
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary

@@ -1,0 +1,11 @@
+README.md
+setup.py
+mpc/__init__.py
+mpc/cli.py
+mpc/core.py
+mpc_tool.egg-info/PKG-INFO
+mpc_tool.egg-info/SOURCES.txt
+mpc_tool.egg-info/dependency_links.txt
+mpc_tool.egg-info/entry_points.txt
+mpc_tool.egg-info/requires.txt
+mpc_tool.egg-info/top_level.txt

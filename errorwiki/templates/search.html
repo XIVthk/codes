@@ -1,0 +1,279 @@
+{% extends "base.html" %}
+
+{% block title %}搜索{% endblock %}
+
+{% block content %}
+<div class="search-container">
+    <div class="search-header">
+        <h1 class="page-title">🔍 Search Errors</h1>
+    </div>
+    
+    <!-- 搜索框 -->
+    <div class="search-box-wrapper glass-card">
+        <form method="get" action="/search" class="search-form">
+            <div class="search-input-group">
+                <span class="search-icon">🔎</span>
+                <input type="text" 
+                       name="q" 
+                       placeholder="搜索错误代码、标题或因果链..." 
+                       value="{{ query }}"
+                       class="search-input"
+                       autofocus>
+            </div>
+            
+            <div class="filter-row">
+                <div class="filter-row">
+                    <!-- 平台下拉 -->
+                    <div class="custom-select" id="platform-select">
+                        <div class="select-trigger glass-card">
+                            <span class="selected-text">所有平台</span>
+                            <span class="select-arrow">▼</span>
+                        </div>
+                        <div class="select-options glass-card">
+                            <div class="select-option" data-value="">所有平台</div>
+                            {% for platform in platforms %}
+                            <div class="select-option" data-value="{{ platform }}">{{ platform }}</div>
+                            {% endfor %}
+                        </div>
+                        <input type="hidden" name="platform" value="{{ platform_filter }}">
+                    </div>
+                    
+                    <!-- 分类下拉 -->
+                    <div class="custom-select" id="category-select">
+                        <div class="select-trigger glass-card">
+                            <span class="selected-text">所有分类</span>
+                            <span class="select-arrow">▼</span>
+                        </div>
+                        <div class="select-options glass-card">
+                            <div class="select-option" data-value="">所有分类</div>
+                            {% for category in categories %}
+                            <div class="select-option" data-value="{{ category }}">{{ category }}</div>
+                            {% endfor %}
+                        </div>
+                        <input type="hidden" name="category" value="{{ category_filter }}">
+                    </div>
+                    
+                    <button type="submit" class="search-submit">搜索</button>
+                    {% if query or platform_filter or category_filter %}
+                    <a href="/search" class="clear-filters">清除筛选</a>
+                    {% endif %}
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <!-- 结果统计 -->
+    <div class="search-stats">
+        <span class="result-count">{{ errors|length }}</span> 个结果
+        {% if query %}匹配 "<strong>{{ query }}</strong>"{% endif %}
+    </div>
+    
+    <!-- 结果列表 -->
+    <div class="search-results">
+        {% if errors %}
+            {% for error in errors %}
+            <a href="/error/{{ error.id }}" class="search-result-item glass-card">
+                <div class="result-header">
+                    <span class="result-code">{{ error.error_code }}</span>
+                    <span class="result-platform" data-platform="{{ error.platform }}">
+                        {{ error.platform }}
+                    </span>
+                </div>
+                <h3 class="result-title">{{ error.title }}</h3>
+                <div class="result-meta">
+                    <span class="result-category">{{ error.category }}</span>
+                    <span class="result-rarity" data-rarity="{{ error.rarity }}">{{ error.rarity }}</span>
+                </div>
+                <p class="result-snippet">
+                    {% if query %}
+                        {# 简单的高亮显示 #}
+                        {{ error.cause_chain|striptags|truncate(150) }}
+                    {% else %}
+                        {{ error.cause_chain|striptags|truncate(150) }}
+                    {% endif %}
+                </p>
+            </a>
+            {% endfor %}
+        {% else %}
+            <div class="no-results glass-card">
+                <span class="no-results-icon">🔍</span>
+                <h3>没有找到匹配的错误</h3>
+                <p>试试其他关键词，或者<a href="/">返回首页</a>看看精选内容。</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+// 全局存储下拉框实例
+const dropdownInstances = new Map();
+
+class CustomDropdown {
+    constructor(selectElement) {
+        this.select = selectElement;
+        this.trigger = selectElement.querySelector('.select-trigger');
+        this.optionsContainer = selectElement.querySelector('.select-options');
+        this.hiddenInput = selectElement.querySelector('input[type="hidden"]');
+        this.selectedText = selectElement.querySelector('.selected-text');
+        this.id = selectElement.id;
+        
+        // 移到 body 下
+        document.body.appendChild(this.optionsContainer);
+        
+        // 绑定事件
+        this.bindEvents();
+        
+        // 初始化选中状态
+        this.setInitialValue();
+        
+        // 初始隐藏
+        this.optionsContainer.style.display = 'none';
+        
+        // 存到全局
+        dropdownInstances.set(this.id, this);
+    }
+    
+    getOptions() {
+        return this.optionsContainer.querySelectorAll('.select-option');
+    }
+    
+    setInitialValue() {
+        const currentValue = this.hiddenInput.value;
+        this.getOptions().forEach(opt => {
+            if (opt.dataset.value === currentValue) {
+                opt.classList.add('selected');
+                this.selectedText.textContent = opt.textContent;
+            }
+        });
+    }
+    
+    updatePosition() {
+        const rect = this.trigger.getBoundingClientRect();
+        this.optionsContainer.style.position = 'fixed';
+        this.optionsContainer.style.top = (rect.bottom + 4) + 'px';
+        this.optionsContainer.style.left = rect.left + 'px';
+        this.optionsContainer.style.width = rect.width + 'px';
+        this.optionsContainer.style.zIndex = '9999';
+    }
+    
+    show() {
+        // 关闭其他下拉框
+        dropdownInstances.forEach((instance, id) => {
+            if (id !== this.id) {
+                instance.hide();
+            }
+        });
+        
+        this.updatePosition();
+        this.optionsContainer.style.display = 'block';
+        this.select.classList.add('active');
+    }
+    
+    hide() {
+        this.optionsContainer.style.display = 'none';
+        this.select.classList.remove('active');
+    }
+    
+    toggle() {
+        if (this.select.classList.contains('active')) {
+            this.hide();
+        } else {
+            this.show();
+        }
+    }
+    
+    bindEvents() {
+        // 触发器点击
+        this.trigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.toggle();
+        });
+        
+        // 选项点击（事件委托）
+        this.optionsContainer.addEventListener('click', (e) => {
+            const opt = e.target.closest('.select-option');
+            if (!opt) return;
+            
+            e.stopPropagation();
+            const value = opt.dataset.value;
+            
+            this.hiddenInput.value = value;
+            this.selectedText.textContent = opt.textContent;
+            
+            this.getOptions().forEach(o => o.classList.remove('selected'));
+            opt.classList.add('selected');
+            
+            this.hide();
+            
+            // 如果是平台下拉框，触发分类更新
+            if (this.id === 'platform-select') {
+                updateCategoriesForPlatform(value);
+            }
+        });
+        
+        // 滚动/窗口大小改变时更新位置
+        window.addEventListener('scroll', () => {
+            if (this.select.classList.contains('active')) {
+                this.updatePosition();
+            }
+        }, true);
+        
+        window.addEventListener('resize', () => {
+            if (this.select.classList.contains('active')) {
+                this.updatePosition();
+            }
+        });
+    }
+}
+
+// 全局点击关闭
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('.custom-select')) {
+        dropdownInstances.forEach(instance => instance.hide());
+    }
+});
+
+// 初始化所有下拉框
+document.querySelectorAll('.custom-select').forEach(select => {
+    new CustomDropdown(select);
+});
+
+// ========== 分类更新函数 ==========
+async function updateCategoriesForPlatform(platform) {
+    const categoryInstance = dropdownInstances.get('category-select');
+    if (!categoryInstance) return;
+    
+    const container = categoryInstance.optionsContainer;
+    const hiddenInput = categoryInstance.hiddenInput;
+    const selectedText = categoryInstance.selectedText;
+    
+    // 清空并添加「所有分类」
+    container.innerHTML = '<div class="select-option selected" data-value="">所有分类</div>';
+    
+    const fetchUrl = platform 
+        ? `/api/categories?platform=${encodeURIComponent(platform)}`
+        : '/api/categories';
+    
+    try {
+        const response = await fetch(fetchUrl);
+        const categories = await response.json();
+        
+        categories.forEach(cat => {
+            const opt = document.createElement('div');
+            opt.className = 'select-option';
+            opt.dataset.value = cat;
+            opt.textContent = cat;
+            container.appendChild(opt);
+        });
+        
+        // 重置为「所有分类」
+        hiddenInput.value = '';
+        selectedText.textContent = '所有分类';
+        
+    } catch (e) {
+        console.error('获取分类失败', e);
+    }
+}
+</script>
+
+{% endblock %}

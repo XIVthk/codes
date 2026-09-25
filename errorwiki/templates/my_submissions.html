@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}我的提交{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">📋 My Submissions</h1>
+    <p class="title-sub">你提交的所有错误条目</p>
+</div>
+
+<div class="submissions-list">
+    {% if submissions %}
+        {% for error in submissions %}
+        <div class="submission-item glass-card">
+            <div class="submission-header">
+                <div class="submission-title">
+                    <span class="submission-code">{{ error.error_code }}</span>
+                    <h3>{{ error.title }}</h3>
+                </div>
+                {% if error.status == STATUS_PUBLISHED %}
+                    <span class="status-badge status-published">✅ 已发布</span>
+                {% elif error.status == STATUS_DRAFT %}
+                    <span class="status-badge status-draft">⏳ 待审核</span>
+                {% elif error.status == STATUS_PRIVATE_DRAFT %}
+                    <span class="status-badge status-private">📝 草稿</span>
+                {% elif error.status == STATUS_REJECTED %}
+                    <span class="status-badge status-rejected">❌ 已驳回</span>
+                {% endif %}
+                </div>
+            
+            <div class="submission-meta">
+                <span>📅 提交于: {{ error.submitted_at.strftime('%Y-%m-%d %H:%M') if error.submitted_at else '未知' }}</span>
+                <span>🖥️ {{ error.platform }}</span>
+                <span>🏷️ {{ error.category or '未分类' }}</span>
+            </div>
+            
+            {% if error.status == STATUS_REJECTED and error.review_comment %}
+            <div class="rejection-comment">
+                <strong>📝 驳回原因：</strong> {{ error.review_comment }}
+            </div>
+            {% endif %}
+            
+            <div class="submission-actions">
+                <a href="{{ url_for('error_detail', error_id=error.id) }}" class="action-link">查看</a>
+                <a href="{{ url_for('edit_error', error_id=error.id) }}" class="action-link">编辑</a>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-state glass-card">
+            <span class="empty-icon">📭</span>
+            <h3>还没有提交过任何错误</h3>
+            <p>发现了未被记录的崩溃？</p>
+            <a href="{{ url_for('submit_error') }}" class="form-submit" style="display: inline-block; width: auto; padding: 12px 32px;">📝 提交第一个错误</a>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+.submissions-list {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.submission-item {
+    padding: 24px;
+    margin-bottom: 20px;
+}
+
+.submission-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+.submission-code {
+    font-family: var(--font-mono);
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--accent-cyan);
+    margin-right: 12px;
+}
+
+.submission-title h3 {
+    font-size: 18px;
+    display: inline;
+}
+
+.submission-meta {
+    display: flex;
+    gap: 24px;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+}
+
+.rejection-comment {
+    background: rgba(248, 81, 73, 0.1);
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 14px;
+}
+
+.submission-actions {
+    display: flex;
+    gap: 16px;
+}
+
+.action-link {
+    color: var(--accent-blue);
+    font-size: 14px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 40px;
+}
+
+.empty-icon {
+    font-size: 64px;
+    display: block;
+    margin-bottom: 20px;
+}
+
+.empty-state h3 {
+    margin-bottom: 12px;
+}
+</style>
+{% endblock %}

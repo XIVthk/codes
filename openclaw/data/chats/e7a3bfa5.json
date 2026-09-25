@@ -1,0 +1,24 @@
+{
+  "id": "e7a3bfa5",
+  "name": "工作群",
+  "type": "group",
+  "bot_name": null,
+  "messages": [
+    {
+      "id": "9b9aab4e-e81a-479c-bed1-3c75a416cb7d",
+      "sender": "你",
+      "content": "@All",
+      "time": "2026-05-04T13:05:01.059687",
+      "type": "user"
+    },
+    {
+      "id": "83ea7a5c-6caf-4113-901e-e90aaf586af2",
+      "sender": "你",
+      "content": "@Sam ？",
+      "time": "2026-05-04T13:05:09.822430",
+      "type": "user"
+    }
+  ],
+  "created_at": "2026-05-04T13:04:29.440407",
+  "updated_at": "2026-05-04T13:05:09.822440"
+}

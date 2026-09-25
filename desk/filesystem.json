@@ -1,0 +1,38 @@
+{
+  "name": "",
+  "type": "folder",
+  "created": "2026-03-07T19:47:59.840907",
+  "modified": "2026-03-07T19:47:59.840955",
+  "attributes": {},
+  "children": [
+    {
+      "name": "\u7cfb\u7edf",
+      "type": "folder",
+      "created": "2026-03-07T19:47:59.840944",
+      "modified": "2026-03-07T19:47:59.840944",
+      "attributes": {},
+      "children": [],
+      "real_folder_path": null
+    },
+    {
+      "name": "\u7528\u6237",
+      "type": "folder",
+      "created": "2026-03-07T19:47:59.840953",
+      "modified": "2026-03-07T19:47:59.840968",
+      "attributes": {},
+      "children": [
+        {
+          "name": "config.txt",
+          "type": "file",
+          "created": "2026-03-07T19:47:59.840964",
+          "modified": "2026-03-07T19:47:59.840965",
+          "attributes": {},
+          "content": "setting=hello",
+          "real_path": null
+        }
+      ],
+      "real_folder_path": null
+    }
+  ],
+  "real_folder_path": null
+}

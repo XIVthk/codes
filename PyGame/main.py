@@ -9,7 +9,7 @@ from datetime import datetime
 
 pygame.init()
 screen = pygame.display.set_mode((800, 600))
-pygame.display.set_caption("窒息")
+pygame.display.set_caption("GameName")
 clock = pygame.time.Clock()
 
 SCREEN_START = 0
@@ -27,32 +27,32 @@ DISPLAY_DIALOG = 0
 DISPLAY_FULLSCREEN = 1
 
 COLORS = {
-    "background": (5, 10, 15),        # 近乎纯黑的深蓝黑
-    "dialog_bg": (15, 20, 30, 220),   # 半透明深蓝黑对话框
-    "name_text": (180, 200, 220),     # 冷色调的姓名文字（如水下反光）
-    "dialog_text": (200, 210, 220),   # 略微偏冷的对话文字
-    "option_bg": (25, 35, 45),        # 深灰蓝选项背景
-    "option_hover": (40, 60, 80),     # 悬停时稍亮一点的蓝灰
-    "option_border": (70, 90, 110),   # 水面的冷色反光感
-    "title": (230, 230, 230),         # 标题用近似#FFFFFF
-    "button": (30, 50, 70),           # 深蓝按钮
-    "button_hover": (50, 80, 100),    # 悬停时如水面波纹
-    "button_disabled": (15, 25, 35),  # 几乎看不见的禁用状态
-    "slider": (80, 110, 130),         # 滑块用稍亮的冷灰蓝
-    "confirm_bg": (10, 20, 30, 240),  # 确认框用更深的背景
-    "empty_slot": (20, 30, 40),       # 空存档位
-    "save_slot": (35, 55, 75),        # 有存档的槽位
-    "save_hover": (55, 85, 105),      # 存档悬停
-    "save_text": (180, 195, 210),     # 存档文字
-    "fullscreen_bg": (0, 5, 10),      # 全屏背景用最深的蓝黑
-    "fullscreen_text": (200, 220, 230), # 全屏文字
-    "history_bg": (12, 22, 32, 240),  # 历史记录背景
-    "history_text": (190, 205, 215),  # 历史记录文字
-    "history_option": (120, 160, 190), # 历史选项高亮
-    "ending_title": (140, 180, 210)   # 结局标题用冷金色
+    "background": (5, 10, 15), 
+    "dialog_bg": (15, 20, 30, 220), 
+    "name_text": (180, 200, 220), 
+    "dialog_text": (200, 210, 220), 
+    "option_bg": (25, 35, 45), 
+    "option_hover": (40, 60, 80), 
+    "option_border": (70, 90, 110), 
+    "title": (230, 230, 230), 
+    "button": (30, 50, 70), 
+    "button_hover": (50, 80, 100),  
+    "button_disabled": (15, 25, 35),
+    "slider": (80, 110, 130), 
+    "confirm_bg": (10, 20, 30, 240), 
+    "empty_slot": (20, 30, 40), 
+    "save_slot": (35, 55, 75), 
+    "save_hover": (55, 85, 105), 
+    "save_text": (180, 195, 210), 
+    "fullscreen_bg": (0, 5, 10), 
+    "fullscreen_text": (200, 220, 230), 
+    "history_bg": (12, 22, 32, 240), 
+    "history_text": (190, 205, 215), 
+    "history_option": (120, 160, 190), 
+    "ending_title": (140, 180, 210)   
 }
 
-df = "fonts/TaipeiSansTCBeta-Bold.ttf"
+df = "fonts/SourceHanSerifCN-Bold.otf"
 
 try:
     title_font = pygame.font.Font(df, 48)
@@ -548,7 +548,7 @@ def process_node_values(node_data):
 def draw_start_screen():
     screen.blit(start_bg, (0, 0))
     
-    title_surf = title_font.render("窒息", True, COLORS["title"])
+    title_surf = title_font.render("G/N", True, COLORS["title"])
     title_rect = title_surf.get_rect(center=(120, 100))
     screen.blit(title_surf, title_rect)
     

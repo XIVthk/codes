@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block title %}{{ error.error_code }}{% endblock %}
+
+{% block content %}
+<div class="error-detail-container">
+    <div class="error-hero">
+        <div class="error-hero-bg"></div>
+        <div class="error-hero-content">
+            <div class="error-breadcrumb">
+                <a href="/">首页</a>
+                <span class="separator">/</span>
+                <a href="/search?platform={{ error.platform }}">{{ error.platform }}</a>
+                <span class="separator">/</span>
+                <span class="current">{{ error.error_code }}</span>
+            </div>
+            <h1 class="error-hero-title">
+                <span class="error-code-main">{{ error.error_code }}</span>
+                <span class="error-title-main">{{ error.title }}</span>
+            </h1>
+            <div class="error-hero-meta">
+                <span class="meta-item platform-badge-large" data-platform="{{ error.platform }}">
+                    {{ error.platform }}
+                </span>
+                <span class="meta-item category-badge">
+                    🏷️ {{ error.category }}
+                </span>
+                <span class="meta-item rarity-badge-large" data-rarity="{{ error.rarity }}">
+                    {% if error.rarity == 'Common' %}🟢 常见
+                    {% elif error.rarity == 'Rare' %}🔵 稀有
+                    {% elif error.rarity == 'Legendary' %}🟡 传说级
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="error-info-grid">
+        <div class="error-main-col">
+            <!-- 因果链 -->
+            <div class="info-card glass-card cause-chain-card">
+                <div class="card-header">
+                    <span class="card-icon">⛓️</span>
+                    <h2>因果链 · Cause Chain</h2>
+                    <span class="card-hint">从触发到崩溃的完整路径</span>
+                </div>
+                <div class="card-content">
+                    <div class="cause-chain-container">
+                        {{ error.cause_chain_html|safe if error.cause_chain else '<p class="empty-content">（暂无）</p>'|safe }}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 解决方案 -->
+            <div class="info-card glass-card solution-card">
+                <div class="card-header">
+                    <span class="card-icon">🔧</span>
+                    <h2>解决方案 · Solution</h2>
+                    <span class="card-hint">已验证的修复路径</span>
+                </div>
+                <div class="card-content markdown-body">
+                    {{ error.solution_html|safe if error.solution else '<p class="empty-content">（暂无）</p>'|safe }}
+                </div>
+            </div>
+        </div>
+        
+        <div class="error-side-col">
+            <!-- 元信息 -->
+            <div class="info-card glass-card meta-card">
+                <div class="card-header">
+                    <span class="card-icon">📋</span>
+                    <h2>档案信息</h2>
+                </div>
+                <div class="card-content">
+                    <dl class="meta-dl">
+                        <dt>首次发现</dt>
+                        <dd>{{ error.first_seen or '未知' }}</dd>
+                        
+                        <dt>错误类型</dt>
+                        <dd>{{ error.category or '未分类' }}</dd>
+                        
+                        <dt>出现频率</dt>
+                        <dd class="rarity-{{ error.rarity|lower if error.rarity else 'common' }}">{{ error.rarity or 'Common' }}</dd>
+                        
+                        <dt>提交者</dt>
+                        <dd>{{ error.submitter.username if error.submitter else '未知' }}</dd>
+                        
+                        <dt>创建时间</dt>
+                        <dd>{{ error.created_at.strftime('%Y-%m-%d %H:%M') if error.created_at else '未知' }}</dd>
+                        
+                        <dt>最后更新</dt>
+                        <dd>{{ error.updated_at.strftime('%Y-%m-%d %H:%M') if error.updated_at else '未知' }}</dd>
+                    </dl>
+                </div>
+            </div>
+            
+            <!-- 后果 -->
+            <div class="info-card glass-card consequences-card">
+                <div class="card-header">
+                    <span class="card-icon">⚠️</span>
+                    <h2>后果 · Consequences</h2>
+                </div>
+                <div class="card-content markdown-body">
+                    {{ error.consequences_html|safe if error.consequences else '<p class="empty-content">（暂无）</p>'|safe }}
+                </div>
+            </div>
+            
+            <!-- 备注 -->
+            <div class="info-card glass-card notes-card">
+                <div class="card-header">
+                    <span class="card-icon">📝</span>
+                    <h2>备注 · Notes</h2>
+                    <span class="card-hint">补充说明</span>
+                </div>
+                <div class="card-content markdown-body">
+                    {{ error.notes_html|safe if error.notes else '<p class="empty-content">（暂无备注）</p>'|safe }}
+                </div>
+            </div>
+
+            <!-- 冷知识 -->
+            <div class="info-card glass-card funfact-card">
+                <div class="card-header">
+                    <span class="card-icon">💡</span>
+                    <h2>冷知识 · Fun Fact</h2>
+                    <span class="card-hint">你知道吗？</span>
+                </div>
+                <div class="card-content markdown-body">
+                    {{ error.fun_fact_html|safe if error.fun_fact else '<p class="empty-content">（暂无）</p>'|safe }}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="error-footer-nav">
+        <button class="nav-link" id="random-from-detail">🎲 随机错误</button>
+        
+        {% if current_user.is_authenticated %}
+        <a href="{{ url_for('edit_error', error_id=error.id) }}" class="nav-link">✏️ 编辑</a>
+        {% endif %}
+        
+        {% if current_user.is_authenticated and current_user.is_moderator() %}
+        <button class="nav-link delete-btn" 
+                data-delete-url="{{ url_for('delete_error', error_id=error.id) }}"
+                data-error-code="{{ error.error_code }}">🗑️ 删除</button>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -52,7 +52,7 @@ class IPV4:
 
         """
         if isinstance(ip, str):
-            if not re.match(r"\d+\.\d+\.\d+\.\d", ip):
+            if not re.match(r"^\d+\.\d+\.\d+\.\d+$", ip):
                 try:
                     self._ip = socket.gethostbyname(ip)
                 except socket.gaierror as err:
@@ -70,7 +70,7 @@ class IPV4:
         
         if len(self._ip) != 4:
             raise IPError("IPV4 must be x.x.x.x or a hostname")
-        if any(map(lambda x: 0 if 0 <= x <= 255 else 1, self._ip)):
+        if any([not 0 <= x <= 255 for x in self._ip]):
             raise IPError("All given nums must >= 0 and <= 255")
     
     def __repr__(self):

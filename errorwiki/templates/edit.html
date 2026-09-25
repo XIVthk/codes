@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}编辑: {{ error.error_code }}{% endblock %}
+
+{% block content %}
+<div class="submit-container">
+    <div class="page-header">
+        <h1 class="page-title">✏️ Edit Error Entry</h1>
+        <p class="title-sub">{{ error.error_code }} - {{ error.title }}</p>
+    </div>
+    
+    <div class="submit-form-card glass-card">
+        <form method="POST" action="{{ url_for('edit_error', error_id=error.id) }}">
+            
+            <div class="form-section">
+                <h3 class="section-title">📋 基本信息</h3>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="error_code">错误代码 *</label>
+                        <input type="text" name="error_code" id="error_code" class="form-control" 
+                               value="{{ error.error_code }}" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="platform">平台 *</label>
+                        <input type="text" name="platform" id="platform" class="form-control" 
+                               value="{{ error.platform }}" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="title">错误标题 *</label>
+                        <input type="text" name="title" id="title" class="form-control" 
+                               value="{{ error.title }}" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="category">分类</label>
+                        <input type="text" name="category" id="category" class="form-control" 
+                               value="{{ error.category or '' }}">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <h3 class="section-title">⛓️ 因果链</h3>
+                <div class="form-group">
+                    <div class="form-hint markdown-hint">
+                        📝 支持 Markdown 语法：**粗体**、*斜体*、`代码`、```代码块```、- 列表、[链接](url)
+                    </div>
+                    <textarea name="cause_chain" id="cause_chain" class="form-control" rows="6">{{ error.cause_chain or '' }}</textarea>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <h3 class="section-title">⚠️ 后果</h3>
+                <div class="form-group">
+                    <div class="form-hint markdown-hint">
+                        📝 支持 Markdown 语法：**粗体**、*斜体*、`代码`、```代码块```、- 列表、[链接](url)
+                    </div>
+                    <textarea name="consequences" id="consequences" class="form-control" rows="3">{{ error.consequences or '' }}</textarea>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <h3 class="section-title">🔧 解决方案</h3>
+                <div class="form-group">    
+                    <div class="form-hint markdown-hint">
+                        📝 支持 Markdown 语法：**粗体**、*斜体*、`代码`、```代码块```、- 列表、[链接](url)
+                    </div>
+                    <textarea name="solution" id="solution" class="form-control" rows="4">{{ error.solution or '' }}</textarea>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <h3 class="section-title">📊 元数据</h3>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="first_seen">首次发现</label>
+                        <input type="text" name="first_seen" id="first_seen" class="form-control" 
+                               value="{{ error.first_seen or '' }}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="rarity">稀有度</label>
+                        <select name="rarity" id="rarity" class="form-control">
+                            <option value="Common" {% if error.rarity == 'Common' %}selected{% endif %}>🟢 常见</option>
+                            <option value="Rare" {% if error.rarity == 'Rare' %}selected{% endif %}>🔵 稀有</option>
+                            <option value="Legendary" {% if error.rarity == 'Legendary' %}selected{% endif %}>🟡 传说级</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <h3 class="section-title">💡 冷知识</h3>
+                <div class="form-group">    
+                    <div class="form-hint markdown-hint">
+                        📝 支持 Markdown 语法：**粗体**、*斜体*、`代码`、```代码块```、- 列表、[链接](url)
+                    </div>
+                    <textarea name="fun_fact" id="fun_fact" class="form-control" rows="2">{{ error.fun_fact or '' }}</textarea>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3 class="section-title">📝 备注</h3>
+                
+                <div class="form-group">
+                    <textarea name="notes" id="notes" class="form-control" rows="3" 
+                            placeholder="补充说明、注意事项、兼容性信息等...">{{ error.notes or '' }}</textarea>
+                    <div class="form-hint">不影响正文的额外信息，比如特定版本差异、相关链接等。</div>
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" name="action" value="publish" class="form-submit">
+                    {% if current_user.is_authenticated and current_user.is_moderator() %}💾 保存并发布{% else %}📤 提交审核{% endif %}
+                </button>
+                <button type="submit" name="action" value="draft" class="form-draft">📝 保存草稿</button>
+                <a href="{{ url_for('error_detail', error_id=error.id) }}" class="form-cancel">取消</a>
+            </div>
+            
+            {% if current_user.is_authenticated and not current_user.is_moderator() and error.status == STATUS_PUBLISHED %}
+            <div class="edit-note">
+                ⚠️ 你正在编辑一个已发布的条目。提交后将进入审核队列，通过后才会更新。
+            </div>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<style>
+.edit-note {
+    margin-top: 16px;
+    padding: 12px 16px;
+    background: rgba(210, 153, 34, 0.1);
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--accent-yellow);
+}
+</style>
+{% endblock %}

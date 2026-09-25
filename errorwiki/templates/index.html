@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}首页{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">
+        <span class="title-glitch">Error Wiki</span>
+        <span class="title-sub">人类与机器沟通失败的调查报告</span>
+    </h1>
+</div>
+
+<!-- 统计卡片 -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-card-icon">📊</div>
+        <div class="stat-card-content">
+            <div class="stat-card-value">{{ total_count }}</div>
+            <div class="stat-card-label">已归档错误</div>
+        </div>
+    </div>
+    <div class="stat-card highlight">
+        <div class="stat-card-icon">🌟</div>
+        <div class="stat-card-content">
+            <div class="stat-card-value">{{ legendary_count }}</div>
+            <div class="stat-card-label">传说级错误</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-icon">🎮</div>
+        <div class="stat-card-content">
+            <div class="stat-card-value">{{ platforms|length }}</div>
+            <div class="stat-card-label">覆盖平台</div>
+        </div>
+    </div>
+</div>
+
+<!-- 欢迎语 -->
+<div class="welcome-card glass-card">
+    <div class="welcome-icon">🔧</div>
+    <div class="welcome-text">
+        <h2>欢迎来到错误档案馆</h2>
+        <p>这里没有“未知错误”。每个崩溃都有原因，每条日志都是线索。</p>
+        <p class="welcome-meta">馆主从错误日志中提取信息，拒绝反编译。</p>
+        <p class="welcome-meta">赛博错误志，专门收容所有错误 —— 你不需要再去翻贴吧了！</p>
+        <p class="welcome-meta">不怪你报错，你也别怪我们的Cause Chain不全面……</p>
+        <p class="welcome-meta">馆主的电脑是Windows，如果Linux/MacOS的Solution出了问题……请自己修改！我们会审核的。</p>
+    </div>
+</div>
+
+<!-- 最新归档 -->
+<div class="section-header">
+    <h2>📋 最新归档</h2>
+    <a href="/search" class="section-link">浏览全部 →</a>
+</div>
+
+<div class="error-grid">
+    {% for error in recent_errors %}
+    <a href="/error/{{ error.id }}" class="error-card-link">
+        <div class="error-card glass-card" data-platform="{{ error.platform }}">
+            <div class="error-card-header">
+                <span class="error-code-badge">{{ error.error_code }}</span>
+                <span class="error-platform-badge" data-platform="{{ error.platform }}">
+                    {{ error.platform }}
+                </span>
+            </div>
+            <h3 class="error-card-title">{{ error.title }}</h3>
+            <div class="error-card-meta">
+                <span class="rarity-badge" data-rarity="{{ error.rarity }}">
+                    {% if error.rarity == 'Common' %}🟢 常见 / Common
+                    {% elif error.rarity == 'Rare' %}🔵 稀有 / Rare
+                    {% elif error.rarity == 'Legendary' %}🟡 传说 / Legendary
+                    {% else %}⚪ {{ error.rarity }}{% endif %}
+                </span>
+                <span class="first-seen">{{ error.first_seen }}</span>
+            </div>
+            <div class="error-card-preview">
+                {{ error.cause_chain[:100]|striptags }}...
+            </div>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+
+<!-- 平台快捷入口 -->
+<div class="section-header">
+    <h2>🎯 按平台浏览</h2>
+</div>
+
+<div class="platform-chips">
+    {% for platform in platforms %}
+    <a href="/search?platform={{ platform }}" class="platform-chip">
+        <span class="platform-chip-name">{{ platform }}</span>
+    </a>
+    {% endfor %}
+</div>
+{% endblock %}

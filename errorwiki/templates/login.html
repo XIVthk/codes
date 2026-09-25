@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}登录{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card glass-card">
+        <h1 class="auth-title">🔐 登录</h1>
+        <p class="auth-subtitle">欢迎回到错误档案馆</p>
+        
+        <!-- Flash 消息 -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        
+        <form method="POST" action="{{ url_for('login') }}">
+            {{ form.hidden_tag() }}
+            
+            <div class="form-group">
+                <label for="username">👤 用户名</label>
+                {{ form.username(class="form-control", placeholder="输入用户名") }}
+                {% if form.username.errors %}
+                    <div class="form-error">{{ form.username.errors[0] }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="password">🔒 密码</label>
+                {{ form.password(class="form-control", placeholder="输入密码") }}
+                {% if form.password.errors %}
+                    <div class="form-error">{{ form.password.errors[0] }}</div>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                {{ form.submit(class="form-submit") }}
+            </div>
+        </form>
+        
+        <div class="auth-footer">
+            还没有账号？<a href="{{ url_for('register') }}">立即注册</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

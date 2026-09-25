@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+
+{% block title %}提交新错误{% endblock %}
+
+{% block content %}
+<div class="submit-container">
+    <div class="page-header">
+        <h1 class="page-title">📝 Submit New Error</h1>
+        <p class="title-sub">发现了一个未被记录的崩溃？把它归档到这里。</p>
+    </div>
+    
+    <div class="submit-form-card glass-card">
+        <form method="POST" action="{{ url_for('submit_error') }}">
+            
+            <!-- 基本信息 -->
+            <div class="form-section">
+                <h3 class="section-title">📋 基本信息</h3>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="error_code">错误代码 *</label>
+                        <input type="text" name="error_code" id="error_code" class="form-control" 
+                               placeholder="例如: 0x80070005" required>
+                        <div class="form-hint">错误代码/错误名称，这是条目的唯一标识</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="platform">平台 *</label>
+                        <input type="text" name="platform" id="platform" class="form-control" 
+                               placeholder="Windows / WeChat / VALORANT / ..." required list="platform-suggestions">
+                        <datalist id="platform-suggestions">
+                            <option value="Windows">
+                            <option value="WeChat">
+                            <option value="VALORANT">
+                            <option value="Web">
+                            <option value="Printer">
+                            <option value="Linux">
+                            <option value="macOS">
+                            <option value="Android">
+                            <option value="iOS">
+                        </datalist>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="title">错误标题 *</label>
+                        <input type="text" name="title" id="title" class="form-control" 
+                               placeholder="例如: 访问被拒绝 - E_ACCESSDENIED" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="category">分类</label>
+                        <input type="text" name="category" id="category" class="form-control" 
+                               placeholder="BSoD / Crash / Network / ..." list="category-suggestions">
+                        <datalist id="category-suggestions">
+                            <option value="BSoD">
+                            <option value="Crash">
+                            <option value="Network">
+                            <option value="Permission">
+                            <option value="Anti-Cheat">
+                            <option value="Hardware">
+                            <option value="Protocol">
+                        </datalist>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 核心内容 -->
+            <div class="form-section">
+                <h3 class="section-title">⛓️ 因果链</h3>
+                
+                <div class="form-group">
+                    <label for="cause_chain">Cause Chain（支持HTML）</label>
+                    <div class="form-hint markdown-hint">
+                        📝 支持 Markdown 语法：**粗体**、*斜体*、`代码`、```代码块```、- 列表、[链接](url)
+                    </div>
+                    <textarea name="cause_chain" id="cause_chain" class="form-control" rows="6" 
+                              placeholder=' EXAMPLE
+- **用户层** 描述第一步
+- **系统层** 描述第二步
+- **崩溃点** 最终表现'></textarea>
+                    <div class="form-hint">使用 trace-step 和 trace-layer 类来构建调用栈视觉效果</div>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <h3 class="section-title">⚠️ 后果</h3>
+                
+                <div class="form-group">    
+                    <div class="form-hint markdown-hint">
+                        📝 支持 Markdown 语法：**粗体**、*斜体*、`代码`、```代码块```、- 列表、[链接](url)
+                    </div>
+                    <textarea name="consequences" id="consequences" class="form-control" rows="3" 
+                              placeholder="描述这个错误发生后会有什么影响..."></textarea>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <h3 class="section-title">🔧 解决方案</h3>
+                
+                <div class="form-group">    
+                    <div class="form-hint markdown-hint">
+                        📝 支持 Markdown 语法：**粗体**、*斜体*、`代码`、```代码块```、- 列表、[链接](url)
+                    </div>
+                    <textarea name="solution" id="solution" class="form-control" rows="4" 
+                              placeholder="如何修复这个错误..."></textarea>
+                </div>
+            </div>
+            
+            <!-- 元数据 -->
+            <div class="form-section">
+                <h3 class="section-title">📊 元数据</h3>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="first_seen">首次发现</label>
+                        <input type="text" name="first_seen" id="first_seen" class="form-control" 
+                               placeholder="例如: Windows NT 3.1 / 2024.01">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="rarity">稀有度</label>
+                        <select name="rarity" id="rarity" class="form-control">
+                            <option value="Common">🟢 常见</option>
+                            <option value="Rare">🔵 稀有</option>
+                            <option value="Legendary">🟡 传说级</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <h3 class="section-title">💡 冷知识</h3>
+                
+                <div class="form-group">    
+                    <div class="form-hint markdown-hint">
+                        📝 支持 Markdown 语法：**粗体**、*斜体*、`代码`、```代码块```、- 列表、[链接](url)
+                    </div>
+                    <textarea name="fun_fact" id="fun_fact" class="form-control" rows="2" 
+                              placeholder="关于这个错误的有趣事实..."></textarea>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3 class="section-title">📝 备注</h3>
+                
+                <div class="form-group">
+                    <textarea name="notes" id="notes" class="form-control" rows="3" 
+                            placeholder="补充说明、注意事项、兼容性信息等..."></textarea>
+                    <div class="form-hint">不影响正文的额外信息，比如特定版本差异、相关链接等。</div>
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" name="action" value="publish" class="form-submit">
+                   {% if current_user.is_authenticated and current_user.is_moderator() %}📤 发布{% else %}📤 提交审核{% endif %}
+                </button>
+                <button type="submit" name="action" value="draft" class="form-draft">📝 保存草稿</button>
+                <a href="{{ url_for('index') }}" class="form-cancel">取消</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.form-section {
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border-dim);
+}
+
+.form-section:last-of-type {
+    border-bottom: none;
+}
+
+.section-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: var(--accent-cyan);
+}
+
+.form-actions {
+    display: flex;
+    gap: 16px;
+    margin-top: 32px;
+}
+
+.form-cancel {
+    padding: 14px 24px;
+    border: 1px solid var(--border-dim);
+    border-radius: 10px;
+    color: var(--text-secondary);
+    text-align: center;
+}
+
+.form-cancel:hover {
+    border-color: var(--accent-blue);
+    color: var(--accent-blue);
+}
+
+textarea.form-control {
+    font-family: var(--font-mono);
+    resize: vertical;
+}
+</style>
+{% endblock %}

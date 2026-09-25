@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+
+{% block title %}审核: {{ error.error_code }}{% endblock %}
+
+{% block content %}
+<div class="review-container">
+    <div class="page-header">
+        <h1 class="page-title">📋 Review Entry</h1>
+    </div>
+    
+    <!-- 完整预览 -->
+    <div class="preview-section glass-card">
+        <div class="preview-header">
+            <span class="preview-code">{{ error.error_code }}</span>
+            <h2>{{ error.title }}</h2>
+            <div class="preview-meta">
+                <span>👤 提交者: {{ error.submitter.username if error.submitter else '未知' }}</span>
+                <span>🖥️ {{ error.platform }}</span>
+                <span>🏷️ {{ error.category or '未分类' }}</span>
+            </div>
+        </div>
+        
+        <div class="preview-body">
+            <div class="preview-section-item">
+                <h3>⛓️ 因果链</h3>
+                <div class="preview-content-box">
+                    {{ error.cause_chain|safe if error.cause_chain else '（未填写）' }}
+                </div>
+            </div>
+            
+            <div class="preview-section-item">
+                <h3>⚠️ 后果</h3>
+                <div class="preview-content-box">
+                    {{ error.consequences or '（未填写）' }}
+                </div>
+            </div>
+            
+            <div class="preview-section-item">
+                <h3>🔧 解决方案</h3>
+                <div class="preview-content-box">
+                    {{ error.solution or '（未填写）' }}
+                </div>
+            </div>
+            
+            <div class="preview-section-item">
+                <h3>💡 冷知识</h3>
+                <div class="preview-content-box">
+                    {{ error.fun_fact or '（未填写）' }}
+                </div>
+            </div>
+            
+            <div class="preview-meta-footer">
+                <span>首次发现: {{ error.first_seen or '未知' }}</span>
+                <span>稀有度: {{ error.rarity or 'Common' }}</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 审核操作 -->
+    <div class="review-actions-card glass-card">
+        <h3>⚖️ 审核决定</h3>
+        
+        <form method="POST" action="{{ url_for('review_error', error_id=error.id) }}">
+            <div class="form-group">
+                <label for="review_comment">驳回原因（如果驳回）</label>
+                <textarea name="review_comment" id="review_comment" class="form-control" rows="3" 
+                          placeholder="如果选择驳回，请填写原因..."></textarea>
+            </div>
+            
+            <div class="action-buttons">
+                <button type="submit" name="action" value="approve" class="approve-btn">✅ 通过审核</button>
+                <button type="submit" name="action" value="reject" class="reject-btn">❌ 驳回</button>
+                <a href="{{ url_for('review_dashboard') }}" class="cancel-btn">返回</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.review-container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.preview-section {
+    padding: 32px;
+    margin-bottom: 24px;
+}
+
+.preview-header {
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border-dim);
+}
+
+.preview-code {
+    font-family: var(--font-mono);
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--accent-cyan);
+    display: block;
+    margin-bottom: 8px;
+}
+
+.preview-header h2 {
+    font-size: 24px;
+    margin-bottom: 12px;
+}
+
+.preview-meta {
+    display: flex;
+    gap: 24px;
+    font-size: 14px;
+    color: var(--text-muted);
+}
+
+.preview-section-item {
+    margin-bottom: 24px;
+}
+
+.preview-section-item h3 {
+    font-size: 16px;
+    margin-bottom: 12px;
+    color: var(--accent-cyan);
+}
+
+.preview-content-box {
+    background: rgba(10, 18, 28, 0.5);
+    padding: 16px 20px;
+    border-radius: 10px;
+    line-height: 1.7;
+}
+
+.preview-meta-footer {
+    display: flex;
+    gap: 24px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-dim);
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+.review-actions-card {
+    padding: 28px;
+}
+
+.review-actions-card h3 {
+    margin-bottom: 20px;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 16px;
+    margin-top: 24px;
+}
+
+.approve-btn, .reject-btn, .cancel-btn {
+    padding: 12px 28px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+}
+
+.approve-btn {
+    background: var(--accent-green);
+    color: white;
+}
+
+.reject-btn {
+    background: var(--accent-red);
+    color: white;
+}
+
+.cancel-btn {
+    background: transparent;
+    border: 1px solid var(--border-dim);
+    color: var(--text-secondary);
+}
+</style>
+{% endblock %}
